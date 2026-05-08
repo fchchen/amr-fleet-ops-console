@@ -1,0 +1,47 @@
+.panel {
+  background: #fff;
+  border: 1px solid #d5dde5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.panel-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.panel-heading span,
+.safety,
+.empty {
+  color: #647381;
+  font-size: 13px;
+}
+
+.command-row,
+.teleop-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.teleop-grid {
+  border-top: 1px solid #e1e7ed;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.safety {
+  margin: 12px 0 0;
+}
+
+.error {
+  color: #a82020;
+  margin: 8px 0 0;
+}

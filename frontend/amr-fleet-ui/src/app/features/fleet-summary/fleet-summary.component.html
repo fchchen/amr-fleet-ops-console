@@ -1,0 +1,25 @@
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Fleet</h2>
+    <span>{{ robots.length }} online feed</span>
+  </div>
+
+  <button
+    *ngFor="let robot of robots"
+    class="robot-card"
+    type="button"
+    [class.selected]="robot.robotId === selectedRobotId"
+    (click)="robotSelected.emit(robot)"
+  >
+    <span class="card-topline">
+      <strong>{{ robot.robotName }}</strong>
+      <span class="status" [class]="robot.status">{{ robot.status }}</span>
+    </span>
+    <span class="metric-row">
+      <span>Battery {{ robot.batteryPercent | number: '1.0-0' }}%</span>
+      <span>{{ robot.speed | number: '1.1-1' }} m/s</span>
+    </span>
+    <span class="mission">{{ robot.missionId || 'No active mission' }}</span>
+    <span class="fault" *ngIf="robot.faultMessage">{{ robot.faultMessage }}</span>
+  </button>
+</section>

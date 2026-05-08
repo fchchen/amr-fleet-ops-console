@@ -1,0 +1,42 @@
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Diagnostics</h2>
+    <span>{{ robot?.robotName || 'Select a robot' }}</span>
+  </div>
+
+  <div class="diagnostic-grid" *ngIf="robot; else noRobot">
+    <div>
+      <span>Status</span>
+      <strong>{{ robot.status }}</strong>
+    </div>
+    <div>
+      <span>Battery</span>
+      <strong>{{ robot.batteryPercent | number: '1.0-0' }}%</strong>
+    </div>
+    <div>
+      <span>Speed</span>
+      <strong>{{ robot.speed | number: '1.1-1' }} m/s</strong>
+    </div>
+    <div>
+      <span>Heading</span>
+      <strong>{{ robot.heading | number: '1.0-0' }}°</strong>
+    </div>
+    <div>
+      <span>Mission</span>
+      <strong>{{ robot.missionId || 'None' }}</strong>
+    </div>
+    <div>
+      <span>Last heartbeat</span>
+      <strong>{{ robot.lastHeartbeatUtc | date: 'mediumTime' }}</strong>
+    </div>
+    <div class="wide">
+      <span>Fault</span>
+      <strong>{{ robot.faultCode || 'None' }}</strong>
+      <p *ngIf="robot.faultMessage">{{ robot.faultMessage }}</p>
+    </div>
+  </div>
+
+  <ng-template #noRobot>
+    <p class="empty">No robot telemetry available.</p>
+  </ng-template>
+</section>

@@ -1,0 +1,24 @@
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Incidents</h2>
+    <span>{{ incidents.length }} active</span>
+  </div>
+
+  <article class="incident" *ngFor="let incident of incidents">
+    <div>
+      <strong>{{ incident.title }}</strong>
+      <p>{{ incident.description }}</p>
+      <span>{{ incident.robotId }} · {{ incident.status }}</span>
+    </div>
+    <button
+      *ngIf="incident.status === 'Open'"
+      type="button"
+      class="secondary"
+      (click)="acknowledge(incident)"
+    >
+      Acknowledge
+    </button>
+  </article>
+
+  <p class="empty" *ngIf="incidents.length === 0">No open or acknowledged incidents.</p>
+</section>

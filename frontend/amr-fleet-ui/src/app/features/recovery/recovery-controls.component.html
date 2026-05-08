@@ -1,0 +1,56 @@
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Recovery Controls</h2>
+    <span>{{ robot?.robotName || 'Select a robot' }}</span>
+  </div>
+
+  <div *ngIf="robot; else noRobot">
+    <div class="command-row">
+      <button mat-flat-button color="warn" type="button" (click)="emergencyStop()">
+        Emergency Stop
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!canEnterRecovery"
+        (click)="enterRecoveryMode()"
+      >
+        Enter Recovery Mode
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="!canTeleop"
+        (click)="exitRecoveryMode()"
+      >
+        Exit Recovery Mode
+      </button>
+    </div>
+
+    <div class="teleop-grid">
+      <button mat-stroked-button type="button" [disabled]="!canTeleop" (click)="teleop('Forward')">
+        Forward
+      </button>
+      <button mat-stroked-button type="button" [disabled]="!canTeleop" (click)="teleop('Left')">
+        Left
+      </button>
+      <button mat-stroked-button type="button" [disabled]="!canTeleop" (click)="teleop('Stop')">
+        Stop
+      </button>
+      <button mat-stroked-button type="button" [disabled]="!canTeleop" (click)="teleop('Right')">
+        Right
+      </button>
+      <button mat-stroked-button type="button" [disabled]="!canTeleop" (click)="teleop('Backward')">
+        Backward
+      </button>
+    </div>
+
+    <p class="safety">Manual controls are enabled only while backend status is RecoveryMode.</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </div>
+
+  <ng-template #noRobot>
+    <p class="empty">No robot selected.</p>
+  </ng-template>
+</section>

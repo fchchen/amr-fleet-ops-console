@@ -1,0 +1,42 @@
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Mission Planner</h2>
+    <span>{{ idleRobots.length }} idle</span>
+  </div>
+
+  <div class="form-grid">
+    <label>
+      Robot
+      <select [(ngModel)]="robotId">
+        <option value="">Select idle robot</option>
+        <option *ngFor="let robot of idleRobots" [value]="robot.robotId">{{ robot.robotName }}</option>
+      </select>
+    </label>
+
+    <label>
+      Pickup
+      <select [(ngModel)]="pickupPoint">
+        <option *ngFor="let point of points" [value]="point">{{ point }}</option>
+      </select>
+    </label>
+
+    <label>
+      Dropoff
+      <select [(ngModel)]="dropoffPoint">
+        <option *ngFor="let point of points" [value]="point">{{ point }}</option>
+      </select>
+    </label>
+
+    <label>
+      Priority
+      <select [(ngModel)]="priority">
+        <option *ngFor="let item of priorities" [value]="item">{{ item }}</option>
+      </select>
+    </label>
+  </div>
+
+  <button class="primary" type="button" [disabled]="!robotId" (click)="assignMission()">
+    Assign Mission
+  </button>
+  <p class="error" *ngIf="error">{{ error }}</p>
+</section>

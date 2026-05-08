@@ -1,0 +1,83 @@
+.panel {
+  background: #fff;
+  border: 1px solid #d5dde5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.panel-heading,
+.card-topline,
+.metric-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.panel-heading {
+  margin-bottom: 12px;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.panel-heading span,
+.mission,
+.fault {
+  color: #647381;
+  font-size: 13px;
+}
+
+.robot-card {
+  background: #f8fafc;
+  border: 1px solid #d9e1e8;
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.robot-card.selected {
+  border-color: #1976a3;
+  box-shadow: 0 0 0 2px rgba(25, 118, 163, 0.18);
+}
+
+.status {
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.Idle {
+  background: #66727d;
+}
+
+.RunningMission {
+  background: #1769aa;
+}
+
+.Charging {
+  background: #7b4ab2;
+}
+
+.Blocked,
+.Faulted,
+.EmergencyStopped {
+  background: #bd2d2d;
+}
+
+.RecoveryMode {
+  background: #d56b12;
+}
+
+.Offline {
+  background: #4d555c;
+}

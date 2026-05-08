@@ -1,0 +1,35 @@
+<main class="console-shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Manufacturing robotics</p>
+      <h1>AMR Fleet Ops Console</h1>
+    </div>
+    <div class="topbar-stats">
+      <span>{{ robots.length }} AMRs</span>
+      <span>{{ selectedRobot?.robotName || 'No robot selected' }}</span>
+    </div>
+  </header>
+
+  <section class="workspace">
+    <section class="left-stack">
+      <app-fleet-summary
+        [robots]="robots"
+        [selectedRobotId]="selectedRobot?.robotId"
+        (robotSelected)="selectRobot($event)"
+      />
+      <app-mission-planner [robots]="robots" (missionCreated)="refreshRobots()" />
+      <app-incidents (incidentChanged)="refreshRobots()" />
+    </section>
+
+    <app-factory-map
+      [robots]="robots"
+      [selectedRobotId]="selectedRobot?.robotId"
+      (robotSelected)="selectRobot($event)"
+    />
+  </section>
+
+  <section class="bottom-grid">
+    <app-diagnostics [robot]="selectedRobot" />
+    <app-recovery-controls [robot]="selectedRobot" (robotChanged)="refreshRobots()" />
+  </section>
+</main>

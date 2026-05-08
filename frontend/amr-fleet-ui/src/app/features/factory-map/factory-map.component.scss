@@ -1,0 +1,98 @@
+.map-panel {
+  background: #fff;
+  border: 1px solid #d5dde5;
+  border-radius: 8px;
+  min-height: 560px;
+  padding: 16px;
+}
+
+.panel-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.panel-heading span {
+  color: #647381;
+  font-size: 13px;
+}
+
+svg {
+  background: #f4f7f9;
+  border-radius: 6px;
+  height: min(68vh, 620px);
+  width: 100%;
+}
+
+text {
+  fill: #42515f;
+  font-size: 3px;
+  pointer-events: none;
+}
+
+.boundary {
+  fill: #ffffff;
+  stroke: #97a8b7;
+  stroke-width: 0.5;
+}
+
+.zone {
+  fill: #e4ebf0;
+  stroke: #9eb1bf;
+  stroke-width: 0.4;
+}
+
+.warehouse {
+  fill: #e7eef6;
+}
+
+.charge {
+  fill: #e7e1f0;
+}
+
+.restricted {
+  fill: #f6e5e2;
+  stroke: #c97c72;
+  stroke-dasharray: 1 1;
+  stroke-width: 0.4;
+}
+
+.route {
+  stroke: #247da8;
+  stroke-dasharray: 1.5 1.5;
+  stroke-width: 0.7;
+}
+
+.obstacle circle {
+  fill: #c53939;
+}
+
+.obstacle text {
+  fill: #8f2525;
+}
+
+.robot {
+  cursor: pointer;
+  transition: transform 240ms linear;
+}
+
+.robot circle {
+  stroke: #fff;
+  stroke-width: 0.8;
+}
+
+.robot line {
+  stroke: #17212b;
+  stroke-width: 0.8;
+}
+
+.robot.selected circle {
+  stroke: #111820;
+  stroke-width: 1.2;
+}
