@@ -2,9 +2,11 @@
 
 Tele-operation is disabled by default.
 
+Emergency stop, recovery mode, and tele-op endpoints require the configured `X-Operator-Token` header. The local demo token is `demo-operator-token`; production deployments should replace this with real authentication and operator authorization.
+
 Recovery Mode must be explicitly entered before manual controls are available. The UI requires a confirmation dialog stating that manual recovery can affect a physical robot and that the area must be clear and authorized.
 
-The backend enforces the same rule. `POST /api/robots/{id}/teleop-command` returns `409 Conflict` unless the robot status is `RecoveryMode`.
+The backend enforces the same rule. `POST /api/robots/{id}/teleop-command` returns `401 Unauthorized` without the operator token and `409 Conflict` unless the robot status is `RecoveryMode`.
 
 Emergency Stop is always available for a selected robot and immediately sets speed to zero.
 

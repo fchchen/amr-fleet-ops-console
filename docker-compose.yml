@@ -5,6 +5,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      FleetConsole__CorsOrigins__0: http://localhost:4200
+      OperatorCommands__RequiredToken: demo-operator-token
     ports:
       - "5000:8080"
 

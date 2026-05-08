@@ -1,18 +1,29 @@
 using System.Text.Json.Serialization;
 using AmrFleet.Api.Hubs;
+using AmrFleet.Api.Options;
 using AmrFleet.Api.Services;
 using AmrFleet.Api.Simulators;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<FleetConsoleOptions>(
+    builder.Configuration.GetSection(FleetConsoleOptions.SectionName));
+builder.Services.Configure<OperatorCommandOptions>(
+    builder.Configuration.GetSection(OperatorCommandOptions.SectionName));
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("OperatorUi", policy =>
     {
+        var consoleOptions = builder.Configuration
+            .GetSection(FleetConsoleOptions.SectionName)
+            .Get<FleetConsoleOptions>() ?? new FleetConsoleOptions();
+
         policy
-            .WithOrigins("http://localhost:4200", "http://localhost:8080")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
+            .WithOrigins(consoleOptions.CorsOrigins)
+            .WithHeaders(HeaderNames.ContentType, "X-Operator-Token", "X-Requested-With", "X-SignalR-User-Agent")
+            .WithMethods(HttpMethods.Get, HttpMethods.Post)
             .AllowCredentials();
     });
 });

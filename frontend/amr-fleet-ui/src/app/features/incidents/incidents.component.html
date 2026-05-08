@@ -14,11 +14,13 @@
       *ngIf="incident.status === 'Open'"
       type="button"
       class="secondary"
+      [disabled]="acknowledgingIncidentId === incident.id"
       (click)="acknowledge(incident)"
     >
-      Acknowledge
+      {{ acknowledgingIncidentId === incident.id ? 'Acknowledging' : 'Acknowledge' }}
     </button>
   </article>
 
-  <p class="empty" *ngIf="incidents.length === 0">No open or acknowledged incidents.</p>
+  <p class="empty" *ngIf="loading">Loading incidents...</p>
+  <p class="empty" *ngIf="!loading && incidents.length === 0">No open or acknowledged incidents.</p>
 </section>

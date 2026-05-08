@@ -31,6 +31,7 @@ export interface Mission {
   robotId: string;
   pickupPoint: string;
   dropoffPoint: string;
+  priority: string;
   status: string;
   progressPercent: number;
   createdAtUtc: string;

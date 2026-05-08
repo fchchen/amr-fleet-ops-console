@@ -10,11 +10,23 @@ public class MissionService(IRobotFleetStore store)
             string.IsNullOrWhiteSpace(request.PickupPoint) ||
             string.IsNullOrWhiteSpace(request.DropoffPoint))
         {
-            throw new InvalidOperationException("Robot, pickup point, and dropoff point are required.");
+            throw new MissionCreateException(MissionCreateFailure.InvalidRequest, "Robot, pickup point, and dropoff point are required.");
         }
 
         return store.AddMission(request);
     }
 
     public bool CancelMission(string id) => store.CancelMission(id);
+}
+
+public class MissionCreateException(MissionCreateFailure failure, string message) : InvalidOperationException(message)
+{
+    public MissionCreateFailure Failure { get; } = failure;
+}
+
+public enum MissionCreateFailure
+{
+    InvalidRequest,
+    RobotNotFound,
+    RobotUnavailable
 }

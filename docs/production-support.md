@@ -7,10 +7,13 @@ The console exposes operational signals that matter during factory support:
 - Fault code and fault message visibility for blocked or faulted robots
 - Incident acknowledgement workflow for operator handoff
 - Recovery controls separated from normal mission planning
+- Structured logs for emergency stop, recovery mode, and tele-op command events
+- SignalR connection state in the UI so stale telemetry is visible
 
 The backend separates command handling, fleet state, and telemetry simulation so production implementations can add:
 
 - Structured logs and metrics
+- Identity-backed authorization for dangerous robot commands
 - Persistent incident and mission history
 - Alerting on missed heartbeats or repeated faults
 - ROS 2/DDS or factory system telemetry adapters

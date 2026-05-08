@@ -41,7 +41,7 @@ Use C# file-scoped namespaces, PascalCase for public types and methods, and came
 
 ## Testing Guidelines
 
-There are no dedicated test projects yet. Before submitting changes, run the backend and frontend build commands above. For safety-related changes, manually verify that `POST /api/robots/{id}/teleop-command` returns `409 Conflict` unless the robot is in `RecoveryMode`. Add focused tests when introducing shared service logic or changing recovery, mission, or incident behavior.
+There are no dedicated test projects yet. Before submitting changes, run the backend and frontend build commands above. For safety-related changes, manually verify that `POST /api/robots/{id}/teleop-command` returns `401 Unauthorized` without `X-Operator-Token` and `409 Conflict` unless the robot is in `RecoveryMode`. Add focused tests when introducing shared service logic or changing recovery, mission, or incident behavior.
 
 ## Commit & Pull Request Guidelines
 
@@ -49,4 +49,4 @@ The current history uses concise imperative commits, for example `Create AMR fle
 
 ## Security & Configuration Tips
 
-Do not commit secrets, tokens, or machine-specific configuration. Keep CORS, ports, and Docker settings explicit. Recovery and tele-op controls must remain enforced in the backend, even when the UI disables unsafe actions.
+Do not commit real secrets, tokens, or machine-specific configuration. The checked-in operator token is demo-only. Keep CORS, ports, and Docker settings explicit. Recovery and tele-op controls must remain enforced in the backend, even when the UI disables unsafe actions.

@@ -1,7 +1,9 @@
 using AmrFleet.Api.Hubs;
 using AmrFleet.Api.Models;
+using AmrFleet.Api.Options;
 using AmrFleet.Api.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 
 namespace AmrFleet.Api.Simulators;
 
@@ -9,11 +11,13 @@ public class RobotTelemetryBackgroundService(
     RobotMovementSimulator simulator,
     IRobotFleetStore store,
     IHubContext<RobotTelemetryHub> hubContext,
+    IOptions<FleetConsoleOptions> options,
     ILogger<RobotTelemetryBackgroundService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        var tickMilliseconds = Math.Max(250, options.Value.SimulatorTickMilliseconds);
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(tickMilliseconds));
 
         while (!stoppingToken.IsCancellationRequested)
         {

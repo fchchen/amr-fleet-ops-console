@@ -1,3 +1,4 @@
+using AmrFleet.Api.Filters;
 using AmrFleet.Api.Models;
 using AmrFleet.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -22,12 +23,14 @@ public class RobotsController(IRobotFleetStore store, RobotCommandService comman
     }
 
     [HttpPost("{id}/emergency-stop")]
+    [RequireOperatorCommandToken]
     public IActionResult EmergencyStop(string id)
     {
         return commands.EmergencyStop(id) ? NoContent() : NotFound();
     }
 
     [HttpPost("{id}/enter-recovery-mode")]
+    [RequireOperatorCommandToken]
     public IActionResult EnterRecoveryMode(string id)
     {
         var result = commands.EnterRecoveryMode(id);
@@ -35,12 +38,14 @@ public class RobotsController(IRobotFleetStore store, RobotCommandService comman
     }
 
     [HttpPost("{id}/exit-recovery-mode")]
+    [RequireOperatorCommandToken]
     public IActionResult ExitRecoveryMode(string id)
     {
         return commands.ExitRecoveryMode(id) ? NoContent() : NotFound();
     }
 
     [HttpPost("{id}/teleop-command")]
+    [RequireOperatorCommandToken]
     public IActionResult TeleopCommand(string id, TeleopCommandRequest request)
     {
         var result = commands.Teleop(id, request.Command);

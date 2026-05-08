@@ -75,6 +75,7 @@ public class InMemoryRobotFleetStore : IRobotFleetStore
                 RobotId = "AMR-001",
                 PickupPoint = "Line A",
                 DropoffPoint = "Inspection Bay",
+                Priority = "Normal",
                 Status = MissionStatus.InProgress,
                 ProgressPercent = 35,
                 CreatedAtUtc = now.AddMinutes(-18)
@@ -85,6 +86,7 @@ public class InMemoryRobotFleetStore : IRobotFleetStore
                 RobotId = "AMR-003",
                 PickupPoint = "Warehouse Zone 2",
                 DropoffPoint = "Line B",
+                Priority = "High",
                 Status = MissionStatus.InProgress,
                 ProgressPercent = 52,
                 CreatedAtUtc = now.AddMinutes(-9)
@@ -158,11 +160,11 @@ public class InMemoryRobotFleetStore : IRobotFleetStore
         lock (syncRoot)
         {
             var robot = state.Robots.SingleOrDefault(item => item.Id == request.RobotId)
-                ?? throw new InvalidOperationException("Robot not found.");
+                ?? throw new MissionCreateException(MissionCreateFailure.RobotNotFound, "Robot not found.");
 
             if (robot.Status != RobotStatus.Idle)
             {
-                throw new InvalidOperationException("Robot must be idle before assigning a mission.");
+                throw new MissionCreateException(MissionCreateFailure.RobotUnavailable, "Robot must be idle before assigning a mission.");
             }
 
             var mission = new Mission
@@ -171,6 +173,7 @@ public class InMemoryRobotFleetStore : IRobotFleetStore
                 RobotId = robot.Id,
                 PickupPoint = request.PickupPoint,
                 DropoffPoint = request.DropoffPoint,
+                Priority = request.Priority,
                 Status = MissionStatus.InProgress,
                 ProgressPercent = 0,
                 CreatedAtUtc = DateTime.UtcNow
@@ -298,6 +301,7 @@ public class InMemoryRobotFleetStore : IRobotFleetStore
         RobotId = mission.RobotId,
         PickupPoint = mission.PickupPoint,
         DropoffPoint = mission.DropoffPoint,
+        Priority = mission.Priority,
         Status = mission.Status,
         ProgressPercent = mission.ProgressPercent,
         CreatedAtUtc = mission.CreatedAtUtc,

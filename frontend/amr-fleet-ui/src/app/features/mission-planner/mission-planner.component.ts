@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RobotTelemetry } from '../../core/models/fleet.models';
 import { MissionApiService } from '../../core/services/mission-api.service';
 
@@ -29,6 +31,8 @@ export class MissionPlannerComponent {
   dropoffPoint = 'Inspection Bay';
   priority = 'Normal';
   error = '';
+  assigning = false;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private readonly missions: MissionApiService) {}
 
@@ -38,11 +42,16 @@ export class MissionPlannerComponent {
 
   assignMission(): void {
     this.error = '';
-    if (!this.robotId) {
+    if (this.assigning) {
+      return;
+    }
+
+    if (!this.robotId || !this.pickupPoint || !this.dropoffPoint) {
       this.error = 'Select an idle robot before assigning a mission.';
       return;
     }
 
+    this.assigning = true;
     this.missions
       .createMission({
         robotId: this.robotId,
@@ -50,6 +59,12 @@ export class MissionPlannerComponent {
         dropoffPoint: this.dropoffPoint,
         priority: this.priority,
       })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.assigning = false;
+        }),
+      )
       .subscribe({
         next: () => {
           this.robotId = '';

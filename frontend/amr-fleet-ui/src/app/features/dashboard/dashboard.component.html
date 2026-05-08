@@ -7,8 +7,15 @@
     <div class="topbar-stats">
       <span>{{ robots.length }} AMRs</span>
       <span>{{ selectedRobot?.robotName || 'No robot selected' }}</span>
+      <span class="connection" [class.warn]="connectionState !== 'connected'">
+        Telemetry {{ connectionState }}
+      </span>
     </div>
   </header>
+
+  <section class="telemetry-warning" *ngIf="connectionState === 'reconnecting' || connectionState === 'disconnected'">
+    Live telemetry is not connected. Map positions may be stale.
+  </section>
 
   <section class="workspace">
     <section class="left-stack">

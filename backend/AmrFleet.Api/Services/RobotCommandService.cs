@@ -1,9 +1,19 @@
 using AmrFleet.Api.Models;
+using AmrFleet.Api.Options;
+using Microsoft.Extensions.Options;
 
 namespace AmrFleet.Api.Services;
 
-public class RobotCommandService(IRobotFleetStore store)
+public class RobotCommandService(
+    IRobotFleetStore store,
+    IOptions<FleetConsoleOptions> options,
+    ILogger<RobotCommandService> logger)
 {
+    private const double ForwardSpeed = 0.4;
+    private const double BackwardSpeed = 0.3;
+    private const double TeleopStep = 2;
+    private const double HeadingStepDegrees = 15;
+
     private static readonly RobotStatus[] RecoveryAllowedStatuses =
     [
         RobotStatus.Blocked,
@@ -29,6 +39,11 @@ public class RobotCommandService(IRobotFleetStore store)
             robot.LastHeartbeatUtc = DateTime.UtcNow;
             found = true;
         });
+
+        if (found)
+        {
+            logger.LogWarning("Emergency stop issued for {RobotId}.", robotId);
+        }
 
         return found;
     }
@@ -57,6 +72,11 @@ public class RobotCommandService(IRobotFleetStore store)
             result = CommandResult.Success();
         });
 
+        if (result.IsSuccess)
+        {
+            logger.LogWarning("Recovery mode entered for {RobotId}.", robotId);
+        }
+
         return result;
     }
 
@@ -84,6 +104,7 @@ public class RobotCommandService(IRobotFleetStore store)
         if (found)
         {
             store.ResolveOpenIncidentForRobot(robotId);
+            logger.LogInformation("Recovery mode exited for {RobotId}.", robotId);
         }
 
         return found;
@@ -113,19 +134,19 @@ public class RobotCommandService(IRobotFleetStore store)
                     robot.Speed = 0;
                     break;
                 case TeleopCommand.Forward:
-                    robot.Y = Math.Max(4, robot.Y - 2);
-                    robot.Speed = 0.4;
+                    MoveRobotFrame(robot, TeleopStep);
+                    robot.Speed = ForwardSpeed;
                     break;
                 case TeleopCommand.Backward:
-                    robot.Y = Math.Min(96, robot.Y + 2);
-                    robot.Speed = 0.3;
+                    MoveRobotFrame(robot, -TeleopStep);
+                    robot.Speed = BackwardSpeed;
                     break;
                 case TeleopCommand.Left:
-                    robot.Heading = NormalizeHeading(robot.Heading - 15);
+                    robot.Heading = NormalizeHeading(robot.Heading - HeadingStepDegrees);
                     robot.Speed = 0;
                     break;
                 case TeleopCommand.Right:
-                    robot.Heading = NormalizeHeading(robot.Heading + 15);
+                    robot.Heading = NormalizeHeading(robot.Heading + HeadingStepDegrees);
                     robot.Speed = 0;
                     break;
             }
@@ -134,10 +155,29 @@ public class RobotCommandService(IRobotFleetStore store)
             result = CommandResult.Success();
         });
 
+        if (result.IsSuccess)
+        {
+            logger.LogInformation("Teleop command {Command} issued for {RobotId}.", command, robotId);
+        }
+
         return result;
     }
 
+    private void MoveRobotFrame(Robot robot, double step)
+    {
+        var consoleOptions = options.Value;
+        robot.X = Clamp(robot.X + Math.Cos(ToRadians(robot.Heading)) * step, consoleOptions);
+        robot.Y = Clamp(robot.Y + Math.Sin(ToRadians(robot.Heading)) * step, consoleOptions);
+    }
+
+    private static double Clamp(double value, FleetConsoleOptions options)
+    {
+        return Math.Min(options.MapMaximumCoordinate, Math.Max(options.MapMinimumCoordinate, value));
+    }
+
     private static double NormalizeHeading(double heading) => (heading + 360) % 360;
+
+    private static double ToRadians(double degrees) => Math.PI * degrees / 180.0;
 }
 
 public record CommandResult(bool IsSuccess, bool IsNotFound, string? Error)

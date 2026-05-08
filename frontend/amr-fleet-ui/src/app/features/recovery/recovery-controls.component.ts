@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import { Observable, finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RobotStatus, RobotTelemetry, TeleopCommand } from '../../core/models/fleet.models';
 import { RobotApiService } from '../../core/services/robot-api.service';
 
@@ -34,6 +35,10 @@ export class RecoveryControlsComponent {
   @Output() robotChanged = new EventEmitter<void>();
 
   error = '';
+  commandInFlight = false;
+  private lastTeleopAt = 0;
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly teleopCooldownMs = 350;
 
   constructor(
     private readonly robots: RobotApiService,
@@ -41,11 +46,11 @@ export class RecoveryControlsComponent {
   ) {}
 
   get canEnterRecovery(): boolean {
-    return this.hasStatus(['Blocked', 'Faulted', 'EmergencyStopped', 'Offline']);
+    return !this.commandInFlight && this.hasStatus(['Blocked', 'Faulted', 'EmergencyStopped', 'Offline']);
   }
 
   get canTeleop(): boolean {
-    return this.robot?.status === 'RecoveryMode';
+    return !this.commandInFlight && this.robot?.status === 'RecoveryMode';
   }
 
   emergencyStop(): void {
@@ -58,11 +63,14 @@ export class RecoveryControlsComponent {
     }
 
     const dialogRef = this.dialog.open(RecoveryConfirmDialogComponent, { width: '460px' });
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed === true) {
-        this.runCommand(() => this.robots.enterRecoveryMode(this.robot!.robotId));
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed === true) {
+          this.runCommand(() => this.robots.enterRecoveryMode(this.robot!.robotId));
+        }
+      });
   }
 
   exitRecoveryMode(): void {
@@ -70,6 +78,12 @@ export class RecoveryControlsComponent {
   }
 
   teleop(command: TeleopCommand): void {
+    const now = Date.now();
+    if (now - this.lastTeleopAt < this.teleopCooldownMs) {
+      return;
+    }
+
+    this.lastTeleopAt = now;
     this.runCommand(() => this.robots.sendTeleopCommand(this.robot!.robotId, command));
   }
 
@@ -82,12 +96,24 @@ export class RecoveryControlsComponent {
       return;
     }
 
+    if (this.commandInFlight) {
+      return;
+    }
+
     this.error = '';
-    command().subscribe({
-      next: () => this.robotChanged.emit(),
-      error: (error) => {
-        this.error = error?.error?.message ?? 'Robot command failed.';
-      },
-    });
+    this.commandInFlight = true;
+    command()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.commandInFlight = false;
+        }),
+      )
+      .subscribe({
+        next: () => this.robotChanged.emit(),
+        error: (error) => {
+          this.error = error?.error?.message ?? 'Robot command failed.';
+        },
+      });
   }
 }

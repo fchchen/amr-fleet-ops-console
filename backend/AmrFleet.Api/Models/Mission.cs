@@ -6,6 +6,7 @@ public class Mission
     public string RobotId { get; set; } = "";
     public string PickupPoint { get; set; } = "";
     public string DropoffPoint { get; set; } = "";
+    public string Priority { get; set; } = "Normal";
     public MissionStatus Status { get; set; }
     public int ProgressPercent { get; set; }
     public DateTime CreatedAtUtc { get; set; }

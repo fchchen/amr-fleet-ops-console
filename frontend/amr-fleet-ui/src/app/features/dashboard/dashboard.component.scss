@@ -38,6 +38,18 @@
   padding: 8px 10px;
 }
 
+.topbar-stats .warn {
+  background: #5f3917;
+  border-color: #a66324;
+}
+
+.telemetry-warning {
+  background: #fff3cd;
+  border-bottom: 1px solid #e0bd5f;
+  color: #6f4d05;
+  padding: 10px 28px;
+}
+
 .workspace {
   display: grid;
   gap: 18px;

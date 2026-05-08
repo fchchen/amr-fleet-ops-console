@@ -1,10 +1,17 @@
 using AmrFleet.Api.Models;
+using AmrFleet.Api.Options;
 using AmrFleet.Api.Services;
+using Microsoft.Extensions.Options;
 
 namespace AmrFleet.Api.Simulators;
 
-public class RobotMovementSimulator(IRobotFleetStore store)
+public class RobotMovementSimulator(IRobotFleetStore store, IOptions<FleetConsoleOptions> options)
 {
+    private const double RunningMissionMinimumSpeed = 1.0;
+    private const double RunningMissionBatteryDrain = 0.03;
+    private const double RunningMissionStep = 0.8;
+    private const int MaxDemoProgressPercent = 95;
+
     public void Tick()
     {
         store.Update(state =>
@@ -23,10 +30,10 @@ public class RobotMovementSimulator(IRobotFleetStore store)
                     continue;
                 }
 
-                robot.Speed = Math.Max(robot.Speed, 1.0);
-                robot.BatteryPercent = Math.Max(0, robot.BatteryPercent - 0.03);
-                robot.X = Wrap(robot.X + Math.Cos(ToRadians(robot.Heading)) * 0.8);
-                robot.Y = Wrap(robot.Y + Math.Sin(ToRadians(robot.Heading)) * 0.8);
+                robot.Speed = Math.Max(robot.Speed, RunningMissionMinimumSpeed);
+                robot.BatteryPercent = Math.Max(0, robot.BatteryPercent - RunningMissionBatteryDrain);
+                robot.X = Wrap(robot.X + Math.Cos(ToRadians(robot.Heading)) * RunningMissionStep);
+                robot.Y = Wrap(robot.Y + Math.Sin(ToRadians(robot.Heading)) * RunningMissionStep);
 
                 var mission = state.Missions.SingleOrDefault(item => item.Id == robot.MissionId);
                 if (mission is null || mission.Status != MissionStatus.InProgress)
@@ -34,21 +41,23 @@ public class RobotMovementSimulator(IRobotFleetStore store)
                     continue;
                 }
 
-                mission.ProgressPercent = Math.Min(95, mission.ProgressPercent + 1);
+                mission.ProgressPercent = Math.Min(MaxDemoProgressPercent, mission.ProgressPercent + 1);
             }
         });
     }
 
-    private static double Wrap(double value)
+    private double Wrap(double value)
     {
-        if (value > 94)
+        var consoleOptions = options.Value;
+
+        if (value > consoleOptions.MapMaximumCoordinate - 2)
         {
-            return 6;
+            return consoleOptions.MapMinimumCoordinate + 2;
         }
 
-        if (value < 6)
+        if (value < consoleOptions.MapMinimumCoordinate + 2)
         {
-            return 94;
+            return consoleOptions.MapMaximumCoordinate - 2;
         }
 
         return value;

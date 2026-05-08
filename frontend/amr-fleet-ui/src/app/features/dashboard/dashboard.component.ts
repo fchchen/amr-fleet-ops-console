@@ -1,9 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { take } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RobotTelemetry } from '../../core/models/fleet.models';
 import { RobotApiService } from '../../core/services/robot-api.service';
-import { RobotTelemetrySignalRService } from '../../core/signalr/robot-telemetry-signalr.service';
+import {
+  RobotTelemetrySignalRService,
+  TelemetryConnectionState,
+} from '../../core/signalr/robot-telemetry-signalr.service';
 import { DiagnosticsComponent } from '../diagnostics/diagnostics.component';
 import { FactoryMapComponent } from '../factory-map/factory-map.component';
 import { FleetSummaryComponent } from '../fleet-summary/fleet-summary.component';
@@ -25,10 +29,11 @@ import { RecoveryControlsComponent } from '../recovery/recovery-controls.compone
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   robots: RobotTelemetry[] = [];
   selectedRobot?: RobotTelemetry;
-  private readonly subscriptions = new Subscription();
+  connectionState: TelemetryConnectionState = 'idle';
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly robotsApi: RobotApiService,
@@ -38,21 +43,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.telemetry.connect();
 
-    this.subscriptions.add(
-      this.telemetry.robots$.subscribe((robots) => {
+    this.telemetry.robots$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((robots) => {
         this.robots = robots;
-        this.selectedRobot =
-          robots.find((robot) => robot.robotId === this.selectedRobot?.robotId) ??
-          robots.find((robot) => robot.robotId === 'AMR-003') ??
-          robots[0];
-      }),
-    );
+        this.selectedRobot = robots.find((robot) => robot.robotId === this.selectedRobot?.robotId) ?? robots[0];
+      });
+
+    this.telemetry.connectionState$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        this.connectionState = state;
+      });
 
     this.refreshRobots();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 
   selectRobot(robot: RobotTelemetry): void {
@@ -60,6 +64,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   refreshRobots(): void {
-    this.robotsApi.getRobots().subscribe((robots) => this.telemetry.setSnapshot(robots));
+    this.robotsApi
+      .getRobots()
+      .pipe(take(1))
+      .subscribe((robots) => this.telemetry.setSnapshot(robots));
   }
 }

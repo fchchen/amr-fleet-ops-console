@@ -6,8 +6,8 @@
 
   <div *ngIf="robot; else noRobot">
     <div class="command-row">
-      <button mat-flat-button color="warn" type="button" (click)="emergencyStop()">
-        Emergency Stop
+      <button mat-flat-button color="warn" type="button" [disabled]="commandInFlight" (click)="emergencyStop()">
+        {{ commandInFlight ? 'Command Pending' : 'Emergency Stop' }}
       </button>
       <button
         mat-flat-button
@@ -47,6 +47,7 @@
     </div>
 
     <p class="safety">Manual controls are enabled only while backend status is RecoveryMode.</p>
+    <p class="safety" *ngIf="commandInFlight">Waiting for command acknowledgement.</p>
     <p class="error" *ngIf="error">{{ error }}</p>
   </div>
 

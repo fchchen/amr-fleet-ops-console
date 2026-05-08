@@ -68,6 +68,17 @@ docker compose up --build
 
 The API runs on `http://localhost:5000` and the UI runs on `http://localhost:4200`.
 
+## Configuration
+
+Runtime settings are in `backend/AmrFleet.Api/appsettings.json`:
+
+- `FleetConsole:CorsOrigins` controls allowed UI origins.
+- `FleetConsole:SimulatorTickMilliseconds` controls telemetry update frequency.
+- `FleetConsole:MapMinimumCoordinate` and `MapMaximumCoordinate` control simulator bounds.
+- `OperatorCommands:RequiredToken` protects emergency stop, recovery mode, and tele-op endpoints.
+
+The local UI sends the demo token `demo-operator-token` through `X-Operator-Token`. Replace this demo boundary with real identity and role-based authorization before connecting to physical robots.
+
 ## Demo scenario
 
 1. Open the dashboard and observe four AMRs.
@@ -86,7 +97,7 @@ Add screenshots after running the local UI.
 
 - Replace the simulator with a ROS 2/DDS or factory-system adapter behind the backend service boundary.
 - Persist robot, mission, and incident state in a database or event stream.
-- Add authentication, authorization, audit logs, and operator role checks before exposing recovery controls.
+- Replace the demo operator token with authentication, authorization, audit logs, and operator role checks before exposing recovery controls.
 - Send logs, metrics, and SignalR connection health to an observability platform.
 - Add deployment-specific CORS and TLS configuration.
 

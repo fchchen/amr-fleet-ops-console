@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Incident } from '../../core/models/fleet.models';
 import { IncidentApiService } from '../../core/services/incident-api.service';
 
@@ -13,6 +15,9 @@ export class IncidentsComponent implements OnInit {
   @Output() incidentChanged = new EventEmitter<void>();
 
   incidents: Incident[] = [];
+  loading = false;
+  acknowledgingIncidentId = '';
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private readonly incidentApi: IncidentApiService) {}
 
@@ -21,15 +26,33 @@ export class IncidentsComponent implements OnInit {
   }
 
   loadIncidents(): void {
-    this.incidentApi.getIncidents().subscribe((incidents) => {
-      this.incidents = incidents.filter((incident) => incident.status !== 'Resolved');
-    });
+    this.loading = true;
+    this.incidentApi
+      .getIncidents()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.loading = false;
+        }),
+      )
+      .subscribe((incidents) => {
+        this.incidents = incidents.filter((incident) => incident.status !== 'Resolved');
+      });
   }
 
   acknowledge(incident: Incident): void {
-    this.incidentApi.acknowledgeIncident(incident.id).subscribe(() => {
-      this.loadIncidents();
-      this.incidentChanged.emit();
-    });
+    this.acknowledgingIncidentId = incident.id;
+    this.incidentApi
+      .acknowledgeIncident(incident.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.acknowledgingIncidentId = '';
+        }),
+      )
+      .subscribe(() => {
+        this.loadIncidents();
+        this.incidentChanged.emit();
+      });
   }
 }

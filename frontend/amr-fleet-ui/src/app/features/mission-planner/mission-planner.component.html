@@ -7,7 +7,7 @@
   <div class="form-grid">
     <label>
       Robot
-      <select [(ngModel)]="robotId">
+      <select [(ngModel)]="robotId" [disabled]="assigning">
         <option value="">Select idle robot</option>
         <option *ngFor="let robot of idleRobots" [value]="robot.robotId">{{ robot.robotName }}</option>
       </select>
@@ -15,28 +15,28 @@
 
     <label>
       Pickup
-      <select [(ngModel)]="pickupPoint">
+      <select [(ngModel)]="pickupPoint" [disabled]="assigning">
         <option *ngFor="let point of points" [value]="point">{{ point }}</option>
       </select>
     </label>
 
     <label>
       Dropoff
-      <select [(ngModel)]="dropoffPoint">
+      <select [(ngModel)]="dropoffPoint" [disabled]="assigning">
         <option *ngFor="let point of points" [value]="point">{{ point }}</option>
       </select>
     </label>
 
     <label>
       Priority
-      <select [(ngModel)]="priority">
+      <select [(ngModel)]="priority" [disabled]="assigning">
         <option *ngFor="let item of priorities" [value]="item">{{ item }}</option>
       </select>
     </label>
   </div>
 
-  <button class="primary" type="button" [disabled]="!robotId" (click)="assignMission()">
-    Assign Mission
+  <button class="primary" type="button" [disabled]="!robotId || assigning" (click)="assignMission()">
+    {{ assigning ? 'Assigning Mission' : 'Assign Mission' }}
   </button>
   <p class="error" *ngIf="error">{{ error }}</p>
 </section>

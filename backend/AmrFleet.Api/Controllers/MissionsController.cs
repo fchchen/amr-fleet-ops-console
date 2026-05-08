@@ -22,7 +22,15 @@ public class MissionsController(IRobotFleetStore store, MissionService missions)
             var mission = missions.CreateMission(request);
             return CreatedAtAction(nameof(GetMissions), new { id = mission.Id }, mission);
         }
-        catch (InvalidOperationException ex)
+        catch (MissionCreateException ex) when (ex.Failure == MissionCreateFailure.RobotNotFound)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (MissionCreateException ex) when (ex.Failure == MissionCreateFailure.InvalidRequest)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (MissionCreateException ex)
         {
             return Conflict(new { message = ex.Message });
         }
