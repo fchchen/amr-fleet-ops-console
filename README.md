@@ -91,7 +91,17 @@ The local UI sends the demo token `demo-operator-token` through `X-Operator-Toke
 
 ## Screenshots
 
-Add screenshots after running the local UI.
+### Live Fleet Dashboard
+
+![Live fleet dashboard with SVG factory map](docs/screenshots/dashboard-live-map.png)
+
+### Blocked Robot Incident
+
+![Blocked robot incident and recovery workflow](docs/screenshots/blocked-incident-recovery.png)
+
+### Recovery Mode Controls
+
+![Recovery mode with manual tele-operation controls enabled](docs/screenshots/recovery-mode-controls.png)
 
 ## Production considerations
 
